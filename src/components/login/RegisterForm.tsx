@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { DocumentTypes } from '../../constants/appConstants';
 import { useState } from 'react';
 import { CustomSnackbar } from '../shared/CustomSnackbar';
+import Swal from 'sweetalert2';
 
 interface RegisterFormProps {
     firstName: string;
@@ -45,14 +46,16 @@ export const RegisterForm = () => {
                 return
             }
 
-            setSnackbar({
-                open: true,
-                message: 'Usuario registrado correctamente',
-                severity: 'success'
-            });
-            reset()
-
-            window.location.reload();
+            Swal.fire({
+                title: 'Registro exitoso',
+                text: 'Tu cuenta ha sido creada con éxito',
+                icon: 'success',
+                confirmButtonText: 'Aceptar',
+            }).then(() => {
+                reset();
+                setPasswordError(false);
+                window.location.href = '/sign-in';
+            })
 
         } catch (error) {
             console.error('Error al registrar el usuario:', error);
