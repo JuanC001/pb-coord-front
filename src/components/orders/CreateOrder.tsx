@@ -5,6 +5,12 @@ import { CustomSnackbar } from '../shared/CustomSnackbar';
 import { Box, Button, Card, CardContent, Grid, Modal, Paper, TextField, Typography } from '@mui/material';
 import { useOrders } from '../../hooks/useOrders';
 import { useAuth } from '../../hooks/useAuth';
+import { useLoadScript, Autocomplete } from '@react-google-maps/api';
+import { getEnvVariables } from '../../utils/getEnvVariables';
+import './CreateOrder.css'
+
+const { VITE_GOOGLE_MAPS_API_KEY } = getEnvVariables();
+const libraries: ("places")[] = ["places"];
 
 interface OrderDimensions {
     length: number;
@@ -28,14 +34,21 @@ export const CreateOrder = ({ handleClose, refresh }: CreateOrderProps) => {
 
     const { createOrder, isLoading } = useOrders();
     const [open, setOpen] = useState(true);
-    const { user } = useAuth()
+    const { user } = useAuth();
+    const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+    const [addressSelected, setAddressSelected] = useState(false);
+
+    const { isLoaded, loadError } = useLoadScript({
+        googleMapsApiKey: VITE_GOOGLE_MAPS_API_KEY,
+        libraries
+    });
 
     const [snackbar, setSnackbar] = React.useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
     const handleCloseSnackbar = () => {
         setSnackbar(prev => ({ ...prev, open: false }));
     };
 
-    const { control, handleSubmit, formState: { errors }, reset } = useForm<OrderFormData>({
+    const { control, handleSubmit, formState: { errors }, reset, setValue } = useForm<OrderFormData>({
         defaultValues: {
             origin: '',
             destination: {
@@ -53,9 +66,58 @@ export const CreateOrder = ({ handleClose, refresh }: CreateOrderProps) => {
         },
     });
 
-    const onSubmit: SubmitHandler<OrderFormData> = async (data) => {
-        try {
+    const onPlaceChanged = () => {
+        console.log('onPlaceChanged');
+        if (autocomplete !== null) {
+            const place = autocomplete.getPlace();
 
+            if (place.formatted_address || place.place_id) {
+                let city = '';
+                let country = '';
+                let postalCode = '';
+                let fullAddress = place.formatted_address || '';
+
+                if (place.address_components) {
+                    for (const component of place.address_components) {
+                        const componentType = component.types[0];
+
+                        if (componentType === 'locality' || componentType === 'administrative_area_level_2') {
+                            city = component.long_name;
+                        }
+                        else if (componentType === 'country') {
+                            country = component.long_name;
+                        }
+                        else if (componentType === 'postal_code') {
+                            postalCode = component.long_name;
+                        }
+                    }
+                }
+
+                setValue('destination.address', fullAddress);
+                setValue('destination.city', city);
+                setValue('destination.country', country);
+                setValue('destination.postalCode', postalCode);
+
+                setAddressSelected(true);
+            }
+        }
+    };
+
+    const onLoad = (autocomplete: google.maps.places.Autocomplete) => {
+        setAutocomplete(autocomplete);
+    };
+
+    const onSubmit: SubmitHandler<OrderFormData> = async (data) => {
+        if (!addressSelected) {
+            setSnackbar({
+                open: true,
+                message: 'Por favor seleccione una dirección de las sugerencias del autocompletado',
+                severity: 'error'
+            });
+            return;
+        }
+
+        try {
             const success = await createOrder({
                 ...data,
                 userId: user?.uuid
@@ -101,6 +163,12 @@ export const CreateOrder = ({ handleClose, refresh }: CreateOrderProps) => {
         }
     };
 
+    if (loadError) {
+        return (
+            <div>Error al cargar Google Maps: {loadError.message}</div>
+        );
+    }
+
     return (
         <>
             <Modal open={open} onClose={handleClose} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -145,6 +213,48 @@ export const CreateOrder = ({ handleClose, refresh }: CreateOrderProps) => {
                                 </Typography>
 
                                 <Grid container spacing={2}>
+                                    <Grid size={{ xs: 12 }}>
+                                        <Controller
+                                            name="destination.address"
+                                            control={control}
+                                            rules={{
+                                                required: 'La dirección es obligatoria',
+                                                minLength: { value: 5, message: 'La dirección debe tener al menos 5 caracteres' }
+                                            }}
+                                            render={({ field }) => (
+                                                isLoaded ? (
+                                                    <Autocomplete
+                                                        onLoad={onLoad}
+                                                        onPlaceChanged={onPlaceChanged}
+                                                        options={{
+                                                            types: ['address'],
+                                                            componentRestrictions: { country: ['co'] } // Países permitidos (ejemplo)
+                                                        }}
+
+                                                    >
+                                                        <TextField
+                                                            {...field}
+                                                            fullWidth
+                                                            margin="normal"
+                                                            label="Dirección (comienza a escribir para autocompletar)"
+                                                            error={!!errors.destination?.address}
+                                                            helperText={errors.destination?.address?.message || ''}
+                                                            required
+                                                        />
+                                                    </Autocomplete>
+                                                ) : (
+                                                    <TextField
+                                                        {...field}
+                                                        fullWidth
+                                                        margin="normal"
+                                                        label="Cargando autocompletado..."
+                                                        disabled
+                                                    />
+                                                )
+                                            )}
+                                        />
+                                    </Grid>
+
                                     <Grid size={{ xs: 12, md: 6 }}>
                                         <Controller
                                             name="destination.city"
@@ -162,6 +272,7 @@ export const CreateOrder = ({ handleClose, refresh }: CreateOrderProps) => {
                                                     error={!!errors.destination?.city}
                                                     helperText={errors.destination?.city?.message || ''}
                                                     required
+                                                    disabled
                                                 />
                                             )}
                                         />
@@ -184,28 +295,7 @@ export const CreateOrder = ({ handleClose, refresh }: CreateOrderProps) => {
                                                     error={!!errors.destination?.country}
                                                     helperText={errors.destination?.country?.message || ''}
                                                     required
-                                                />
-                                            )}
-                                        />
-                                    </Grid>
-
-                                    <Grid size={{ xs: 12 }}>
-                                        <Controller
-                                            name="destination.address"
-                                            control={control}
-                                            rules={{
-                                                required: 'La dirección es obligatoria',
-                                                minLength: { value: 5, message: 'La dirección debe tener al menos 5 caracteres' }
-                                            }}
-                                            render={({ field }) => (
-                                                <TextField
-                                                    {...field}
-                                                    fullWidth
-                                                    margin="normal"
-                                                    label="Dirección"
-                                                    error={!!errors.destination?.address}
-                                                    helperText={errors.destination?.address?.message || ''}
-                                                    required
+                                                    disabled
                                                 />
                                             )}
                                         />
@@ -222,6 +312,7 @@ export const CreateOrder = ({ handleClose, refresh }: CreateOrderProps) => {
                                                     message: 'El código postal debe tener entre 4 y 10 dígitos'
                                                 }
                                             }}
+
                                             render={({ field }) => (
                                                 <TextField
                                                     {...field}
@@ -231,6 +322,7 @@ export const CreateOrder = ({ handleClose, refresh }: CreateOrderProps) => {
                                                     error={!!errors.destination?.postalCode}
                                                     helperText={errors.destination?.postalCode?.message || ''}
                                                     required
+                                                    disabled
                                                 />
                                             )}
                                         />
