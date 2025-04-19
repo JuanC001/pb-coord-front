@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { DocumentTypes } from '../../constants/appConstants';
 import { useState } from 'react';
 import { CustomSnackbar } from '../shared/CustomSnackbar';
+import Swal from 'sweetalert2';
 
 interface RegisterFormProps {
     firstName: string;
@@ -18,8 +19,8 @@ interface RegisterFormProps {
 
 export const RegisterForm = () => {
 
-    const { login: loginAuth, register: registerAuth, loading: isLoading } = useAuth();
-    const { register, handleSubmit, getValues, formState: {
+    const { register: registerAuth, loading: isLoading } = useAuth();
+    const { register, handleSubmit, reset, getValues, formState: {
         errors
     } } = useForm<RegisterFormProps>()
 
@@ -42,7 +43,20 @@ export const RegisterForm = () => {
                         severity: 'error'
                     });
                 }
+                return
             }
+
+            Swal.fire({
+                title: 'Registro exitoso',
+                text: 'Tu cuenta ha sido creada con éxito',
+                icon: 'success',
+                confirmButtonText: 'Aceptar',
+            }).then(() => {
+                reset();
+                setPasswordError(false);
+                window.location.href = '/sign-in';
+            })
+
         } catch (error) {
             console.error('Error al registrar el usuario:', error);
         }
