@@ -18,8 +18,8 @@ interface RegisterFormProps {
 
 export const RegisterForm = () => {
 
-    const { login: loginAuth, register: registerAuth, loading: isLoading } = useAuth();
-    const { register, handleSubmit, getValues, formState: {
+    const { register: registerAuth, loading: isLoading } = useAuth();
+    const { register, handleSubmit, reset, getValues, formState: {
         errors
     } } = useForm<RegisterFormProps>()
 
@@ -42,7 +42,18 @@ export const RegisterForm = () => {
                         severity: 'error'
                     });
                 }
+                return
             }
+
+            setSnackbar({
+                open: true,
+                message: 'Usuario registrado correctamente',
+                severity: 'success'
+            });
+            reset()
+
+            window.location.reload();
+
         } catch (error) {
             console.error('Error al registrar el usuario:', error);
         }
