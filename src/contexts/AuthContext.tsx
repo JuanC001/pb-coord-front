@@ -14,29 +14,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const loadUser = async () => {
-            try {
-                const userData = authService.getCurrentUser();
+    const loadUser = async () => {
+        try {
+            const userData = authService.getCurrentUser();
 
-                if (userData) {
-                    setUser(userData.user);
-                    setToken(userData.token);
+            if (userData) {
+                setUser(userData.user);
+                setToken(userData.token);
 
-                    const renewResponse = await authService.renewToken();
-                    if (!renewResponse.ok) {
-                        authService.logout();
-                        setUser(null);
-                        setToken(null);
-                    }
+                const renewResponse = await authService.renewToken();
+                if (!renewResponse.ok) {
+                    authService.logout();
+                    setUser(null);
+                    setToken(null);
                 }
-            } catch (error) {
-                console.error('Error al cargar usuario:', error);
-            } finally {
-                setLoading(false);
             }
-        };
+        } catch (error) {
+            console.error('Error al cargar usuario:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         loadUser();
     }, []);
 

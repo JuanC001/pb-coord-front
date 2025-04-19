@@ -42,6 +42,17 @@ export interface RegisterReponse {
     updatedAt: string;
 }
 
+export interface UserAuth {
+    user: {
+        uuid: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        role: string;
+    };
+    token: string
+}
+
 export interface AuthContextType {
     user: UserData | null;
     token: string | null;

@@ -32,7 +32,7 @@ export const HomePage = () => {
                             color="secondary"
                             size="large"
                             component={RouterLink}
-                            to="/envios"
+                            to="/my-orders"
                             sx={{ mt: 2 }}
                         >
                             Realizar un envío

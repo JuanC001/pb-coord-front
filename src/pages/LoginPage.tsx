@@ -5,7 +5,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 import { LoginForm } from '../components/login/LoginForm';
 import { RegisterForm } from '../components/login/RegisterForm';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 export const LoginPage = () => {
 
