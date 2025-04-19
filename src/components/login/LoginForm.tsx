@@ -1,9 +1,8 @@
 import { Box, Button, CircularProgress, TextField } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { useAuth } from '../../contexts/AuthContext';
-import Swal from 'sweetalert2';
 import { CustomSnackbar } from '../shared/CustomSnackbar';
 import { useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 
 interface LoginFormProps {
     email: string;

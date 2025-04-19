@@ -1,24 +1,9 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { RegisterRequest } from '../types/auth.types';
+import { AuthContextType, RegisterRequest } from '../types/auth.types';
 import { authService } from '../services/authService';
 import { UserData } from '../types/user.types';
 
-
-
-interface AuthContextType {
-    user: UserData | null;
-    token: string | null;
-    isAuthenticated: boolean;
-    login: (email: string, password: string) => Promise<boolean>;
-    register: (registerData: RegisterRequest) => Promise<{
-        ok: boolean;
-        message?: string;
-    }>;
-    logout: () => void;
-    loading: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -29,29 +14,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const loadUser = async () => {
-            try {
-                const userData = authService.getCurrentUser();
+    const loadUser = async () => {
+        try {
+            const userData = authService.getCurrentUser();
 
-                if (userData) {
-                    setUser(userData.user);
-                    setToken(userData.token);
+            if (userData) {
+                setUser(userData.user);
+                setToken(userData.token);
 
-                    const renewResponse = await authService.renewToken();
-                    if (!renewResponse.ok) {
-                        authService.logout();
-                        setUser(null);
-                        setToken(null);
-                    }
+                const renewResponse = await authService.renewToken();
+                if (!renewResponse.ok) {
+                    authService.logout();
+                    setUser(null);
+                    setToken(null);
                 }
-            } catch (error) {
-                console.error('Error al cargar usuario:', error);
-            } finally {
-                setLoading(false);
             }
-        };
+        } catch (error) {
+            console.error('Error al cargar usuario:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         loadUser();
     }, []);
 
@@ -127,10 +112,3 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = (): AuthContextType => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('Debe ser usado dentro de un AuthProvider');
-    }
-    return context;
-};

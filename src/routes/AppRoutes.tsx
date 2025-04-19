@@ -4,14 +4,15 @@ import { HomePage } from '../pages/HomePage';
 import { TrackingPage } from '../pages/TrackingPage';
 import { AdminDashboardPage } from '../pages/AdminDashboardPage';
 
-import { ShipmentsPage } from '../pages/ShipmentsPage';
 import { ContactPage } from '@mui/icons-material';
 import { LoginPage } from '../pages/LoginPage';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { ReactNode } from 'react';
 import Swal from 'sweetalert2';
 import { UserRole } from '../constants/appConstants';
 import { CourrierDashboardPage } from '../pages/CourrierDashboardPage';
+import { OrdersPage } from '../pages/OrdersPage';
+import { OrderProvider } from '../contexts/OrderContext';
 
 const PrivateRoute = ({ children, title, message, role }: { children: ReactNode, title: string, message: string, role: UserRole[] }) => {
     const { isAuthenticated, user } = useAuth();
@@ -82,14 +83,6 @@ export const AppRoutes = () => {
                 />
 
                 <Route
-                    path="/envios"
-                    element={
-                        <PrivateRoute title='Whoops...' message='Debes iniciar sesión para acceder a esta sección' role={[UserRole.CUSTOMER, UserRole.ADMIN]}>
-                            <ShipmentsPage />
-                        </PrivateRoute>
-                    }
-                />
-                <Route
                     path="/admin/dashboard"
                     element={
                         <PrivateRoute title='Whoops...' message='No tienes acceso a esta sección' role={[UserRole.ADMIN]}>
@@ -106,6 +99,19 @@ export const AppRoutes = () => {
                         </PrivateRoute>
                     }
                 />
+
+                <Route
+
+                    path='/my-orders'
+                    element={
+                        <PrivateRoute title='Whoops...' message='Debes iniciar sesión para acceder a esta sección' role={[UserRole.CUSTOMER, UserRole.ADMIN]}>
+                            <OrderProvider>
+                                <OrdersPage />
+                            </OrderProvider>
+                        </PrivateRoute>
+                    }
+                />
+
 
                 <Route path="/404" element={<NotFoundPage />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />

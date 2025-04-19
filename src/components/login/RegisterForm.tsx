@@ -1,10 +1,10 @@
 import { Box, Button, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useAuth } from '../../contexts/AuthContext';
 import { DocumentTypes } from '../../constants/appConstants';
 import { useState } from 'react';
 import { CustomSnackbar } from '../shared/CustomSnackbar';
 import Swal from 'sweetalert2';
+import { useAuth } from '../../hooks/useAuth';
 
 interface RegisterFormProps {
     firstName: string;

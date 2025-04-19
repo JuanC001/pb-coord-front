@@ -1,11 +1,11 @@
-import { AppBar, Box, Button, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material'
+import { AppBar, Box, Button, IconButton, Menu, MenuItem, Toolbar } from '@mui/material'
 import { useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import { useAuth } from '../../contexts/AuthContext';
+
 import { UserRole } from '../../constants/appConstants';
+import { useAuth } from '../../hooks/useAuth';
 
 
 export const Navbar = () => {
@@ -64,7 +64,6 @@ export const ProtectedMenu = () => {
             {
                 (user?.role === UserRole.CUSTOMER || user?.role === UserRole.ADMIN) &&
                 <>
-                    <Button color="inherit" component={RouterLink} to="/envios">Envíos</Button>
                     <Button color="inherit" component={RouterLink} to="/my-orders">Ordenes</Button>
                 </>
 
