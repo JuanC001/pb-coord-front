@@ -1,5 +1,5 @@
 import coordApi from '../utils/apiUtils';
-import { LoginRequest, LoginResponse, RegisterRequest, RegisterReponse } from '../types/auth.types';
+import { LoginRequest, LoginResponse, RegisterRequest, RegisterReponse, UserAuth } from '../types/auth.types';
 import { AxiosError } from 'axios';
 
 export const authService = {
@@ -58,7 +58,7 @@ export const authService = {
       };
     } catch (error: any) {
       console.error('Error en registro:', error);
-      if(error instanceof AxiosError){
+      if (error instanceof AxiosError) {
         console.error('Error de Axios:', error.response?.data);
       }
       return {
@@ -71,26 +71,19 @@ export const authService = {
   renewToken: async (): Promise<{ ok: boolean; data?: LoginResponse; message?: string }> => {
     try {
       const userData = sessionStorage.getItem('user');
-      console.log('userData', userData);
       if (!userData) {
         return {
           ok: false,
           message: 'No hay sesión activa'
         };
       }
+      const { user } = JSON.parse(userData) as UserAuth;
 
       const { data } = await coordApi.post<LoginResponse>('/auth/renew');
-      console.log('data', data);
 
       if (data && data.token) {
         sessionStorage.setItem('user', JSON.stringify({
-          user: {
-            uuid: data.uuid,
-            email: data.email,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            role: data.role,
-          },
+          user,
           token: data.token
         }));
 
@@ -129,16 +122,7 @@ export const authService = {
     return !!token;
   },
 
-  getCurrentUser: (): {
-    user: {
-      uuid: string;
-      email: string;
-      firstName: string;
-      lastName: string;
-      role: string;
-    };
-    token: string
-  } | null => {
+  getCurrentUser: (): UserAuth | null => {
     const userData = sessionStorage.getItem('user');
     if (!userData) return null;
 
