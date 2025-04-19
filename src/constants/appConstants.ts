@@ -5,6 +5,12 @@ export const SHIPMENT_STATUS = {
   RETURNED: 'Devuelto',
   CANCELLED: 'Cancelado',
 };
+export const DocumentTypes = [
+  { value: 'CC', label: 'Cédula de Ciudadanía' },
+  { value: 'CE', label: 'Cédula de Extranjería' },
+  { value: 'PA', label: 'Pasaporte' },
+  { value: 'NIT', label: 'NIT' }
+];
 
 export enum OrderStatus {
   PENDING = 'pending',
