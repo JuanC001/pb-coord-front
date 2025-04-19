@@ -1,4 +1,5 @@
 import { Address } from "./address.types";
+import { UserData } from "./user.types";
 
 export interface LoginRequest {
     email: string;
@@ -39,4 +40,17 @@ export interface RegisterReponse {
     lastLogin: string;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface AuthContextType {
+    user: UserData | null;
+    token: string | null;
+    isAuthenticated: boolean;
+    login: (email: string, password: string) => Promise<boolean>;
+    register: (registerData: RegisterRequest) => Promise<{
+        ok: boolean;
+        message?: string;
+    }>;
+    logout: () => void;
+    loading: boolean;
 }

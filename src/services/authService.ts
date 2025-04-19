@@ -83,7 +83,6 @@ export const authService = {
       console.log('data', data);
 
       if (data && data.token) {
-        const parsedData = JSON.parse(userData);
         sessionStorage.setItem('user', JSON.stringify({
           user: {
             uuid: data.uuid,
