@@ -5,14 +5,17 @@ import App from './App.tsx'
 import ThemeProvider from './theme/ThemeProvider'
 import { CssBaseline } from '@mui/material'
 import { AuthProvider } from './contexts/AuthContext'
+import { ShipmentProvider } from './contexts/ShipmentContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
       <BrowserRouter>
         <AuthProvider>
+          <ShipmentProvider>
             <CssBaseline />
             <App />
+          </ShipmentProvider>
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>

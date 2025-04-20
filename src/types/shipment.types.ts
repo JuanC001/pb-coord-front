@@ -11,8 +11,25 @@ export interface Shipment {
 }
 
 export interface ShipmentResponse {
-    ok: boolean;
-    shipment?: Shipment;
-    shipments?: Shipment[];
-    message?: string;
+    id: string;
+    orderId: string;
+    carrierId: string;
+    status: ShipmentStatus;
+    trackingNumber: string;
+    createdAt: Date;
+    updatedAt: Date;
+    destination: {
+        city: string;
+        country: string;
+        address: string;
+        postalCode: string;
+    };
+    dimensions: {
+        length: string;
+        width: string;
+        height: string;
+        weight: string;
+    };
+    origin: string;
+    routeName: string;
 }

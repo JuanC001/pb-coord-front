@@ -40,11 +40,6 @@ export const ShipmentProvider = ({ children }: ShipmentProviderProps) => {
 
         try {
             const response = await shipmentService.getAllShipments();
-            if (response.ok && response.shipments) {
-                setShipments(response.shipments);
-            } else {
-                setError(response.message || 'Error al obtener los envíos');
-            }
         } catch (error) {
             setError('Error al conectar con el servidor');
         } finally {
@@ -58,11 +53,7 @@ export const ShipmentProvider = ({ children }: ShipmentProviderProps) => {
 
         try {
             const response = await shipmentService.getShipmentById(id);
-            if (response.ok && response.shipment) {
-                setCurrentShipment(response.shipment);
-            } else {
-                setError(response.message || 'Error al obtener el envío');
-            }
+
         } catch (error) {
             setError('Error al conectar con el servidor');
         } finally {
@@ -76,10 +67,9 @@ export const ShipmentProvider = ({ children }: ShipmentProviderProps) => {
 
         try {
             const response = await shipmentService.getShipmentsByTrackingNumber(trackingNumber);
-            if (response.ok && response.shipments) {
-                setShipments(response.shipments);
-            } else {
-                setError(response.message || 'Error al obtener los envíos por número de seguimiento');
+            console.log('response', response);
+            if (response) {
+                setCurrentShipment(response);
             }
         } catch (error) {
             setError('Error al conectar con el servidor');
@@ -94,10 +84,8 @@ export const ShipmentProvider = ({ children }: ShipmentProviderProps) => {
 
         try {
             const response = await shipmentService.getShipmentsByOrderId(orderId);
-            if (response.ok && response.shipments) {
-                setShipments(response.shipments);
-            } else {
-                setError(response.message || 'Error al obtener los envíos por orden');
+            if (response) {
+                setShipments([response]);
             }
         } catch (error) {
             setError('Error al conectar con el servidor');
@@ -133,18 +121,7 @@ export const ShipmentProvider = ({ children }: ShipmentProviderProps) => {
 
         try {
             const response = await shipmentService.updateShipment(id, shipmentData);
-            if (response.ok && response.shipment) {
-                setShipments(prevShipments =>
-                    prevShipments.map(shipment => shipment.id === id ? response.shipment! : shipment)
-                );
-                if (currentShipment?.id === id) {
-                    setCurrentShipment(response.shipment);
-                }
-                return true;
-            } else {
-                setError(response.message || 'Error al actualizar el envío');
-                return false;
-            }
+            return false
         } catch (error) {
             setError('Error al conectar con el servidor');
             return false;
@@ -159,20 +136,7 @@ export const ShipmentProvider = ({ children }: ShipmentProviderProps) => {
 
         try {
             const response = await shipmentService.updateShipmentStatus(id, status);
-            if (response.ok && response.shipment) {
-                setShipments(prevShipments =>
-                    prevShipments.map(shipment =>
-                        shipment.id === id ? { ...shipment, status } : shipment
-                    )
-                );
-                if (currentShipment?.id === id) {
-                    setCurrentShipment({ ...currentShipment, status });
-                }
-                return true;
-            } else {
-                setError(response.message || 'Error al actualizar el estado del envío');
-                return false;
-            }
+            return false
         } catch (error) {
             setError('Error al conectar con el servidor');
             return false;
@@ -187,18 +151,8 @@ export const ShipmentProvider = ({ children }: ShipmentProviderProps) => {
 
         try {
             const response = await shipmentService.deleteShipment(id);
-            if (response.ok) {
-                setShipments(prevShipments =>
-                    prevShipments.filter(shipment => shipment.id !== id)
-                );
-                if (currentShipment?.id === id) {
-                    setCurrentShipment(null);
-                }
-                return true;
-            } else {
-                setError(response.message || 'Error al eliminar el envío');
-                return false;
-            }
+            return false
+
         } catch (error) {
             setError('Error al conectar con el servidor');
             return false;

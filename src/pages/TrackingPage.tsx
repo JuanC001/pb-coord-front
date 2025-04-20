@@ -1,26 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Typography, Box, Paper, TextField, Button, Stepper, Step, StepLabel, Grid, Card, CardContent, Divider } from '@mui/material';
+import { Typography, Box, Paper, TextField, Button, Stepper, Step, StepLabel, Grid, Card, CardContent, Divider, Alert } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { useShipments } from '../hooks/useShipments';
+import { ShipmentProvider } from '../contexts/ShipmentContext';
+import { ShipmentStatus } from '../constants/appConstants';
 
-interface TrackingResult {
-    trackingNumber: string;
-    status: string;
-    origin: string;
-    destination: string;
-    currentStep: number;
-    estimatedDelivery: string;
-    lastUpdate: string;
-    client: string;
-    weight: string;
-}
-
-export const TrackingPage = () => {
+const TrackingPageContent = () => {
     const { trackingNumber: urlTrackingNumber } = useParams<{ trackingNumber?: string }>();
     const navigate = useNavigate();
     const [trackingNumber, setTrackingNumber] = useState<string>(urlTrackingNumber || '');
-    const [trackingResult, setTrackingResult] = useState<TrackingResult | null>(null);
-    const [searching, setSearching] = useState<boolean>(false);
+
+    const { currentShipment, isLoading, error, getShipmentsByTrackingNumber } = useShipments();
 
     useEffect(() => {
         if (urlTrackingNumber && urlTrackingNumber.trim()) {
@@ -29,31 +20,18 @@ export const TrackingPage = () => {
         }
     }, [urlTrackingNumber]);
 
+    useEffect(() => {
+        console.log('currentShipment', currentShipment);
+    }, [currentShipment]);
+
     const handleTracking = (trackingNum = trackingNumber) => {
         if (!trackingNum.trim()) return;
-
-        setSearching(true);
 
         if (trackingNum !== urlTrackingNumber) {
             navigate(`/seguimiento/${trackingNum}`);
         }
 
-        setTimeout(() => {
-            const mockResult: TrackingResult = {
-                trackingNumber: trackingNum,
-                status: 'En tránsito',
-                origin: 'Bogotá, Colombia',
-                destination: 'Medellín, Colombia',
-                currentStep: 2,
-                estimatedDelivery: '20 de Abril, 2025',
-                lastUpdate: '18 de Abril, 2025 - 10:30 AM',
-                client: 'Juan Pérez',
-                weight: '2.5 kg'
-            };
-
-            setTrackingResult(mockResult);
-            setSearching(false);
-        }, 1500);
+        getShipmentsByTrackingNumber(trackingNum);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -61,7 +39,49 @@ export const TrackingPage = () => {
         handleTracking();
     };
 
+    const mapShipmentStatus = (status?: ShipmentStatus): string => {
+        if (!status) return 'Desconocido';
+
+        switch (status) {
+            case ShipmentStatus.PENDING:
+                return 'Pendiente';
+            case ShipmentStatus.IN_TRANSIT:
+                return 'En tránsito';
+            case ShipmentStatus.DELIVERED:
+                return 'Entregado';
+            default:
+                return 'Desconocido';
+        }
+    };
+
+    const getStepFromStatus = (status?: ShipmentStatus): number => {
+        if (!status) return 0;
+
+        switch (status) {
+            case ShipmentStatus.PENDING:
+                return 0;
+            case ShipmentStatus.IN_TRANSIT:
+                return 1;
+            case ShipmentStatus.DELIVERED:
+                return 3;
+            default:
+                return 0;
+        }
+    };
+
     const steps = ['Recogido', 'En tránsito', 'En ciudad destino', 'Entregado'];
+
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return 'No disponible';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-CO', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
 
     return (
         <Box>
@@ -93,17 +113,23 @@ export const TrackingPage = () => {
                                 size="large"
                                 startIcon={<SearchIcon />}
                                 onClick={() => handleTracking()}
-                                disabled={searching || !trackingNumber.trim()}
+                                disabled={isLoading || !trackingNumber.trim()}
                                 type="submit"
                             >
-                                {searching ? 'Buscando...' : 'Rastrear Envío'}
+                                {isLoading ? 'Buscando...' : 'Rastrear Envío'}
                             </Button>
                         </Grid>
                     </Grid>
                 </form>
             </Paper>
 
-            {trackingResult && (
+            {error && (
+                <Alert severity="error" sx={{ mb: 4 }}>
+                    {error}
+                </Alert>
+            )}
+
+            {currentShipment && (
                 <Box sx={{ mt: 4 }}>
                     <Typography variant="h5" gutterBottom>
                         Resultado del Seguimiento
@@ -112,7 +138,7 @@ export const TrackingPage = () => {
                     <Card sx={{ mb: 4 }} elevation={3}>
                         <CardContent>
                             <Typography variant="h6" color="primary" gutterBottom>
-                                Estado: {trackingResult.status}
+                                Estado: {mapShipmentStatus(currentShipment.status)}
                             </Typography>
 
                             <Grid container spacing={2}>
@@ -121,7 +147,7 @@ export const TrackingPage = () => {
                                         Número de Guía:
                                     </Typography>
                                     <Typography variant="body1" gutterBottom>
-                                        {trackingResult.trackingNumber}
+                                        {currentShipment.trackingNumber || 'No disponible'}
                                     </Typography>
                                 </Grid>
 
@@ -130,7 +156,7 @@ export const TrackingPage = () => {
                                         Última Actualización:
                                     </Typography>
                                     <Typography variant="body1" gutterBottom>
-                                        {trackingResult.lastUpdate}
+                                        {formatDate(currentShipment.updatedAt?.toString())}
                                     </Typography>
                                 </Grid>
 
@@ -143,7 +169,7 @@ export const TrackingPage = () => {
                                         Origen:
                                     </Typography>
                                     <Typography variant="body1" gutterBottom>
-                                        {trackingResult.origin}
+                                        {(currentShipment as any).origin || 'No disponible'}
                                     </Typography>
                                 </Grid>
 
@@ -152,16 +178,17 @@ export const TrackingPage = () => {
                                         Destino:
                                     </Typography>
                                     <Typography variant="body1" gutterBottom>
-                                        {trackingResult.destination}
+                                        {(currentShipment as any).destination?.city || 'No disponible'},
+                                        {(currentShipment as any).destination?.country || ''}
                                     </Typography>
                                 </Grid>
 
                                 <Grid size={{ xs: 12, md: 6 }}>
                                     <Typography variant="body2" color="textSecondary">
-                                        Cliente:
+                                        Dirección de destino:
                                     </Typography>
                                     <Typography variant="body1" gutterBottom>
-                                        {trackingResult.client}
+                                        {(currentShipment as any).destination?.address || 'No disponible'}
                                     </Typography>
                                 </Grid>
 
@@ -170,16 +197,16 @@ export const TrackingPage = () => {
                                         Peso:
                                     </Typography>
                                     <Typography variant="body1" gutterBottom>
-                                        {trackingResult.weight}
+                                        {(currentShipment as any).dimensions?.weight ? `${(currentShipment as any).dimensions.weight} kg` : 'No disponible'}
                                     </Typography>
                                 </Grid>
 
                                 <Grid size={12}>
                                     <Typography variant="body2" color="textSecondary">
-                                        Entrega Estimada:
+                                        Ruta:
                                     </Typography>
                                     <Typography variant="body1" color="secondary" fontWeight="bold">
-                                        {trackingResult.estimatedDelivery}
+                                        {(currentShipment as any).routeName || 'No disponible'}
                                     </Typography>
                                 </Grid>
                             </Grid>
@@ -190,7 +217,7 @@ export const TrackingPage = () => {
                         Progreso del Envío
                     </Typography>
                     <Paper sx={{ p: 3 }} elevation={2}>
-                        <Stepper activeStep={trackingResult.currentStep} alternativeLabel>
+                        <Stepper activeStep={getStepFromStatus(currentShipment.status)} alternativeLabel>
                             {steps.map((label) => (
                                 <Step key={label}>
                                     <StepLabel>{label}</StepLabel>
@@ -213,5 +240,13 @@ export const TrackingPage = () => {
                 </Typography>
             </Paper>
         </Box>
+    );
+};
+
+export const TrackingPage = () => {
+    return (
+        <ShipmentProvider>
+            <TrackingPageContent />
+        </ShipmentProvider>
     );
 };
