@@ -1,8 +1,15 @@
 # Resumen
 
 ¡Hola! 
-Este es un proyecto de una prueba para la postulación como Full Stack en coordinadora. Este es el proyecto de backend.
+Este es un proyecto de una prueba para la postulación como Full Stack en coordinadora. Este es el proyecto de frontend.
 Este proyecto utiliza Node JS y React.
+
+## Vídeo presentación:
+
+El video que se solicitó para la presentación se encuentra aqui:
+
+https://youtu.be/C3qhxdfq-mM
+
 
 # Preparativos
 
