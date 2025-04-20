@@ -1,54 +1,28 @@
-# React + TypeScript + Vite
+# Resumen
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+¡Hola! 
+Este es un proyecto de una prueba para la postulación como Full Stack en coordinadora. Este es el proyecto de backend.
+Este proyecto utiliza Node JS y React.
 
-Currently, two official plugins are available:
+# Preparativos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+A continuación se presentan los programas que ya deberías tener instalado para trabajar con este proyecto:
+- [x] Debes tener NodeJS (La versión utilizada es la 22.12.0 lts)
 
-## Expanding the ESLint configuration
+# Instalación
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Para la instalación basta con descargar el proyecto, y en la carpeta raiz iniciar el comando:
+```
+npm install
+```
+Una vez ejecutado este comando en la terminal, deberá ejecutar el comando `npm run dev` con esto ya podra ver el proyecto en `http://localhost:5173/`
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+# Variables de entorno
+
+Asegurese de que las variables de entorno esten bien configuradas, puesto que esto podrá dar problema, para ello se encuentra un archivo
+
+```
+.env.sample
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+Este archivo es un ejemplo de como deberían estar las variables de entorno en tu local (apuntando a tus bd personales o locales como docker).
