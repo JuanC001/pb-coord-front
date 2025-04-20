@@ -61,7 +61,6 @@ export const RouteAssignment = ({ orders, carriers, refreshData }: RouteAssignme
 
     const handleAssignCarrierToOrder = async () => {
         try {
-            console.log('Asignando transportador a la orden:', currentOrderId, selectedCarrier);
             if (!currentOrderId || !selectedCarrier) return;
 
             const order = orders.find((order) => order.id === currentOrderId);
@@ -72,7 +71,6 @@ export const RouteAssignment = ({ orders, carriers, refreshData }: RouteAssignme
                 carrierId: selectedCarrier
             });
 
-            console.log('Respuesta de la creación del envío:', response);
 
             if (response) {
 

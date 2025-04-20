@@ -21,7 +21,7 @@ export const shipmentService = {
         }
     },
 
-    getShipmentsByTrackingNumber: async (trackingNumber: string): Promise<ShipmentResponse | null> => {
+    getShipmentsByTrackingNumber: async (trackingNumber: string): Promise<ShipmentResponse[] | null> => {
         try {
             const { data } = await coordApi.get(`/shipments/tracking/${trackingNumber}`);
             return data;

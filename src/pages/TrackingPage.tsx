@@ -20,10 +20,6 @@ const TrackingPageContent = () => {
         }
     }, [urlTrackingNumber]);
 
-    useEffect(() => {
-        console.log('currentShipment', currentShipment);
-    }, [currentShipment]);
-
     const handleTracking = (trackingNum = trackingNumber) => {
         if (!trackingNum.trim()) return;
 

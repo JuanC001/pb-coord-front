@@ -67,9 +67,8 @@ export const ShipmentProvider = ({ children }: ShipmentProviderProps) => {
 
         try {
             const response = await shipmentService.getShipmentsByTrackingNumber(trackingNumber);
-            console.log('response', response);
             if (response) {
-                setCurrentShipment(response);
+                setCurrentShipment(response[0]);
             }
         } catch (error) {
             setError('Error al conectar con el servidor');

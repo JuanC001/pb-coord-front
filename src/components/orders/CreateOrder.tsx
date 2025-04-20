@@ -67,7 +67,6 @@ export const CreateOrder = ({ handleClose, refresh }: CreateOrderProps) => {
     });
 
     const onPlaceChanged = () => {
-        console.log('onPlaceChanged');
         if (autocomplete !== null) {
             const place = autocomplete.getPlace();
 
