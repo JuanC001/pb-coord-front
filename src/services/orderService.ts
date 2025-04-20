@@ -4,15 +4,12 @@ import { Order, OrderResponse } from "../types/order.types";
 
 export const orderService = {
 
-    getAllOrders: async (): Promise<OrderResponse> => {
+    getAllOrders: async (): Promise<Order[] | null> => {
         try {
             const { data } = await coordApi.get('/orders');
             return data;
         } catch (error: any) {
-            return {
-                ok: false,
-                message: error.response?.data?.message || 'Error al obtener las órdenes'
-            };
+            return null
         }
     },
 
