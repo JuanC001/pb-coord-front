@@ -36,10 +36,8 @@ export const OrderProvider = ({ children }: OrderProviderProps) => {
 
         try {
             const response = await orderService.getAllOrders();
-            if (response.ok && response.orders) {
-                setOrders(response.orders);
-            } else {
-                setError(response.message || 'Error al obtener las órdenes');
+            if (response){
+                setOrders(response);
             }
         } catch (error) {
             setError('Error al conectar con el servidor');

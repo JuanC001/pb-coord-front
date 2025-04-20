@@ -13,6 +13,9 @@ import { UserRole } from '../constants/appConstants';
 import { CourrierDashboardPage } from '../pages/CourrierDashboardPage';
 import { OrdersPage } from '../pages/OrdersPage';
 import { OrderProvider } from '../contexts/OrderContext';
+import { CarrierProvider } from '../contexts/CarrierContext';
+import { RouteProvider } from '../contexts/RouteContext';
+import { ShipmentProvider } from '../contexts/ShipmentContext';
 
 const PrivateRoute = ({ children, title, message, role }: { children: ReactNode, title: string, message: string, role: UserRole[] }) => {
     const { isAuthenticated, user } = useAuth();
@@ -86,7 +89,15 @@ export const AppRoutes = () => {
                     path="/admin/dashboard"
                     element={
                         <PrivateRoute title='Whoops...' message='No tienes acceso a esta sección' role={[UserRole.ADMIN]}>
-                            <AdminDashboardPage />
+                            <OrderProvider>
+                                <CarrierProvider>
+                                    <RouteProvider>
+                                        <ShipmentProvider>
+                                            <AdminDashboardPage />
+                                        </ShipmentProvider>
+                                    </RouteProvider>
+                                </CarrierProvider>
+                            </OrderProvider>
                         </PrivateRoute>
                     }
                 />
