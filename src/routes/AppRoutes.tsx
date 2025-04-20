@@ -15,7 +15,6 @@ import { OrdersPage } from '../pages/OrdersPage';
 import { OrderProvider } from '../contexts/OrderContext';
 import { CarrierProvider } from '../contexts/CarrierContext';
 import { RouteProvider } from '../contexts/RouteContext';
-import { ShipmentProvider } from '../contexts/ShipmentContext';
 
 const PrivateRoute = ({ children, title, message, role }: { children: ReactNode, title: string, message: string, role: UserRole[] }) => {
     const { isAuthenticated, user } = useAuth();
@@ -92,9 +91,7 @@ export const AppRoutes = () => {
                             <OrderProvider>
                                 <CarrierProvider>
                                     <RouteProvider>
-                                        <ShipmentProvider>
-                                            <AdminDashboardPage />
-                                        </ShipmentProvider>
+                                        <AdminDashboardPage />
                                     </RouteProvider>
                                 </CarrierProvider>
                             </OrderProvider>
